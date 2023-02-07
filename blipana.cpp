@@ -107,6 +107,11 @@ TH1D* L;
 TH1D* H_blip_Energy;
 TH1D* H_blip_Energy_overlay;
 TH1D* H_blip_Energy_mc;
+TH1D* H_blip_Energy_mc_gammas;
+TH1D* H_blip_Energy_mc_protons;
+TH1D* H_blip_Energy_mc_eminus;
+TH1D* H_blip_Energy_mc_eplus;
+TH1D* H_blip_Energy_mc_other;
 
 TH2D* h_recoVsTrueE_p; //proton
 TH2D* h_recoVsTrueE_blips;// blips
@@ -420,6 +425,11 @@ h_myE->SetBinContent(58, 100);
 H_blip_Energy = new TH1D("H_blip_Energy","E blip; E_{blip}; Events", 100, 0, 5);
 H_blip_Energy_overlay = new TH1D("H_blip_Energy_overlay","E blip; E_{blip}; Events", 100, 0, 5);
 H_blip_Energy_mc = new TH1D("H_blip_Energy_mc","E blip; E_{blip}; Events", 100, 0, 5);
+H_blip_Energy_mc_gammas = new TH1D("H_blip_Energy_mc_gammas","E blip; E_{blip}; Events", 100, 0, 5);
+H_blip_Energy_mc_protons = new TH1D("H_blip_Energy_mc_protons","E blip; E_{blip}; Events", 100, 0, 5);
+H_blip_Energy_mc_eminus = new TH1D("H_blip_Energy_mc_eminus","E blip; E_{blip}; Events", 100, 0, 5);
+H_blip_Energy_mc_eplus = new TH1D("H_blip_Energy_mc_eplus","E blip; E_{blip}; Events", 100, 0, 5);
+H_blip_Energy_mc_other = new TH1D("H_blip_Energy_mc_other","E blip; E_{blip}; Events", 100, 0, 5);
 
 H = new TH1D("h_HBlip","HBlip; E_{blip}; Events", 150, 0, 3);
 L = new TH1D("h_LBlip","Lblip; E_{blip}; Events", 150, 0, 3);
@@ -657,8 +667,13 @@ if(iBlip == 1 )  blip1Proc = edep_proc[blip_edepid[iBlip]] ;
 
              H_blip_Energy->Fill(energy);
 	     
-	     if(edep_id >= 0 ) H_blip_Energy_mc->Fill(energy);
-             else H_blip_Energy_overlay->Fill(energy);
+	     if(edep_id >= 0 ) {H_blip_Energy_mc->Fill(energy);
+		     	       if(      edep_pdg[blip_edepid[iBlip]] ==   22 ) H_blip_Energy_mc_gammas->Fill(energy);
+			       else if( edep_pdg[blip_edepid[iBlip]] == 2212 ) H_blip_Energy_mc_protons->Fill(energy);
+			       else if( edep_pdg[blip_edepid[iBlip]] == 11 ) H_blip_Energy_mc_eminus->Fill(energy);
+			       else if( edep_pdg[blip_edepid[iBlip]] == -11 ) H_blip_Energy_mc_eplus->Fill(energy);
+			       else  H_blip_Energy_mc_other->Fill(energy);
+	     }else H_blip_Energy_overlay->Fill(energy);
 
              h_blip_zy_pk_0->Fill( blip_z[iBlip], blip_y[iBlip] );
              h_blip_zx_pk_0->Fill( blip_z[iBlip], blip_x[iBlip] );

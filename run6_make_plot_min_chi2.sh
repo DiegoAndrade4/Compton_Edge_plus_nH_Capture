@@ -1,0 +1,4 @@
+#!/bin/bash
+#bool isMCOverlay , bool AddNeutrons, bool plot
+root -b -q Plot_Eshift_Chi2CalcFit.C+(\"OutputFiles_OOTB_COM/output_BlipAna_20221206_Run3_Unbiased_G10.root\" , \"OutputFiles_OOTB_COM/output_BlipAna_20221206_Run3_Unbiased_NonG10.root\", \"OutputFiles_OOTB_COM/output_BlipAna_20221206_RadonData_FullFilter_G10.root\" , \"OutputFiles_OOTB_COM/output_BlipAna_20221206_RadonData_FullFilter_NonG10.root\" , \"OutputFiles_Shifted_fs/output_BlipAna_v08_00_00_63_lowROIthreshold_gammas_2pt6_G10_5struts_overlay_CAD_G10_$1.root\", \"OutputFiles_Shifted_fs/output_BlipAna_v08_00_00_63_lowROIthreshold_gammas_2pt6_G10_5struts_overlay_CAD_NonG10_$1.root\", \"OutputFiles_Shifted_fs/output_BlipAna_v08_00_00_63_lowROIthreshold_neutrons_1eV_G10_5struts_overlay_G10_$1.root\", \"OutputFiles_Shifted_fs/output_BlipAna_v08_00_00_63_lowROIthreshold_neutrons_1eV_G10_5struts_overlay_NonG10_$1.root\", \"$5\",  \"plot_Eshift_$1\", $1,  -1.0 , $2, true , false , true, $3, $4 )
+
