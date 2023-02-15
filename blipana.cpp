@@ -111,7 +111,16 @@ TH1D* H_blip_Energy_mc_gammas;
 TH1D* H_blip_Energy_mc_protons;
 TH1D* H_blip_Energy_mc_eminus;
 TH1D* H_blip_Energy_mc_eplus;
-TH1D* H_blip_Energy_mc_other;
+TH1D* H_blip_Energy_mc_otherpdg;
+
+//Process Type
+TH1D* H_blip_Energy_mc_primary;
+TH1D* H_blip_Energy_mc_compton;
+TH1D* H_blip_Energy_mc_photoe;
+TH1D* H_blip_Energy_mc_pairprod;
+TH1D* H_blip_Energy_mc_otherproc;
+TH1D* H_blip_Energy_mc_nonproc;
+
 
 TH2D* h_recoVsTrueE_p; //proton
 TH2D* h_recoVsTrueE_blips;// blips
@@ -119,8 +128,10 @@ TH2D* h_pE_true_reco;
 TH1D* h_ratio;
 
 TH2D* h_blip_zy_pk_0;
+TH2D* h_blip_zy_pk_0_mc;
 
 TH2D* h_blip_zx_pk_0;
+TH2D* h_blip_zx_pk_0_mc;
 
 TH1D* hsr0; 
 
@@ -402,7 +413,7 @@ purity_type3.open (inputFileNamePurityType3,std::ofstream::in |std::ofstream::ap
    h_dyz_0 = new TH1D("dyz_sr0","sr0 blip_dyz; blip_dyz; Events", 500,0,5);
 
 h_anatreeE = new TH1D("h_anatreeE","Eblip; E_{blip}; Events", 80, 0, 20);
-h_myE = new TH1D("h_myE","myEblip; E_{blip}; Events", 100, 0, 5);
+h_myE = new TH1D("h_myE","myEblip; E_{blip}; Events", 200, 0, 10);
 
 
 h_myE->SetBinContent(1, 102); 
@@ -422,14 +433,21 @@ h_myE->SetBinContent(21, 100);
 h_myE->SetBinContent(56, 100);
 h_myE->SetBinContent(58, 100);
 
-H_blip_Energy = new TH1D("H_blip_Energy","E blip; E_{blip}; Events", 100, 0, 5);
-H_blip_Energy_overlay = new TH1D("H_blip_Energy_overlay","E blip; E_{blip}; Events", 100, 0, 5);
-H_blip_Energy_mc = new TH1D("H_blip_Energy_mc","E blip; E_{blip}; Events", 100, 0, 5);
-H_blip_Energy_mc_gammas = new TH1D("H_blip_Energy_mc_gammas","E blip; E_{blip}; Events", 100, 0, 5);
-H_blip_Energy_mc_protons = new TH1D("H_blip_Energy_mc_protons","E blip; E_{blip}; Events", 100, 0, 5);
-H_blip_Energy_mc_eminus = new TH1D("H_blip_Energy_mc_eminus","E blip; E_{blip}; Events", 100, 0, 5);
-H_blip_Energy_mc_eplus = new TH1D("H_blip_Energy_mc_eplus","E blip; E_{blip}; Events", 100, 0, 5);
-H_blip_Energy_mc_other = new TH1D("H_blip_Energy_mc_other","E blip; E_{blip}; Events", 100, 0, 5);
+H_blip_Energy = new TH1D("H_blip_Energy","E blip; E_{blip}; Events", 200, 0, 10);
+H_blip_Energy_overlay = new TH1D("H_blip_Energy_overlay","E blip; E_{blip}; Events", 200, 0, 10);
+H_blip_Energy_mc = new TH1D("H_blip_Energy_mc","E blip; E_{blip}; Events", 200, 0, 10);
+H_blip_Energy_mc_gammas = new TH1D("H_blip_Energy_mc_gammas","E blip; E_{blip}; Events", 200, 0, 10);
+H_blip_Energy_mc_protons = new TH1D("H_blip_Energy_mc_protons","E blip; E_{blip}; Events", 200, 0, 10);
+H_blip_Energy_mc_eminus = new TH1D("H_blip_Energy_mc_eminus","E blip; E_{blip}; Events", 200, 0, 10);
+H_blip_Energy_mc_eplus = new TH1D("H_blip_Energy_mc_eplus","E blip; E_{blip}; Events", 200, 0, 10);
+H_blip_Energy_mc_otherpdg = new TH1D("H_blip_Energy_mc_otherpdg","E blip; E_{blip}; Events", 200, 0, 10);
+
+H_blip_Energy_mc_primary = new TH1D("H_blip_Energy_mc_primary","E blip; E_{blip}; Events", 200, 0, 10);
+H_blip_Energy_mc_compton = new TH1D("H_blip_Energy_mc_compton","E blip; E_{blip}; Events", 200, 0, 10);
+H_blip_Energy_mc_photoe = new TH1D("H_blip_Energy_mc_photoe","E blip; E_{blip}; Events", 200, 0, 10);
+H_blip_Energy_mc_pairprod = new TH1D("H_blip_Energy_mc_pairprod","E blip; E_{blip}; Events", 200, 0, 10);
+H_blip_Energy_mc_otherproc = new TH1D("H_blip_Energy_mc_otherproc","E blip; E_{blip}; Events", 200, 0, 10);
+H_blip_Energy_mc_nonproc = new TH1D("H_blip_Energy_mc_nonproc","E blip; E_{blip}; Events", 200, 0, 10);
 
 H = new TH1D("h_HBlip","HBlip; E_{blip}; Events", 150, 0, 3);
 L = new TH1D("h_LBlip","Lblip; E_{blip}; Events", 150, 0, 3);
@@ -444,8 +462,10 @@ h_ratio = new TH1D("h_ratio","ratio  ;  blip_energy[iBlip]  /  clust_charge[blip
 
 
   h_blip_zy_pk_0 = new TH2D("blip_ZY_pk_sr0","3-matched-planes 3D blips;Z [cm]; Y [cm]",Zbins,Zmin,Zmax,Ybins,Ymin,Ymax);
- 
   h_blip_zx_pk_0 = new TH2D("blip_ZX_pk_sr0","3-matched-planes 3D blips;Z [cm]; X [cm]",Zbins,Zmin,Zmax,Xbins,Xmin,Xmax);
+
+  h_blip_zy_pk_0_mc = new TH2D("blip_ZY_pk_sr0_mc","MC 3-matched-planes 3D blips;Z [cm]; Y [cm]",Zbins,Zmin,Zmax,Ybins,Ymin,Ymax);
+  h_blip_zx_pk_0_mc = new TH2D("blip_ZX_pk_sr0_mc","MC 3-matched-planes 3D blips;Z [cm]; X [cm]",Zbins,Zmin,Zmax,Xbins,Xmin,Xmax);
 
 
   h_recoVsTrueE_blips = new TH2D("h_recoVsTrueE_blips","Reco vs True E_{Blip}; True Blip Energy; Reco Blip Energy",100,0,10,100,0,10);
@@ -455,7 +475,10 @@ h_ratio = new TH1D("h_ratio","ratio  ;  blip_energy[iBlip]  /  clust_charge[blip
 h_blip_zy_pk_0->SetOption("colz");
 h_blip_zx_pk_0->SetOption("colz");
 
- // 2D Number of hits in a cluster vs charge in a cluster
+h_blip_zy_pk_0_mc->SetOption("colz");
+h_blip_zx_pk_0_mc->SetOption("colz");
+
+// 2D Number of hits in a cluster vs charge in a cluster
 float nmin = 0;  float nmax = 15;  int nbins = 15;
 float chmin = 0;  float chmax = 3e5;   int chbins = 600;
 float Emin = 0;  float Emax = 12;   int Ebins = 120;
@@ -668,12 +691,33 @@ if(iBlip == 1 )  blip1Proc = edep_proc[blip_edepid[iBlip]] ;
              H_blip_Energy->Fill(energy);
 	     
 	     if(edep_id >= 0 ) {H_blip_Energy_mc->Fill(energy);
-		     	       if(      edep_pdg[blip_edepid[iBlip]] ==   22 ) H_blip_Energy_mc_gammas->Fill(energy);
+		     	       
+		               if(      edep_pdg[blip_edepid[iBlip]] ==   22 ) H_blip_Energy_mc_gammas->Fill(energy);
 			       else if( edep_pdg[blip_edepid[iBlip]] == 2212 ) H_blip_Energy_mc_protons->Fill(energy);
 			       else if( edep_pdg[blip_edepid[iBlip]] == 11 ) H_blip_Energy_mc_eminus->Fill(energy);
 			       else if( edep_pdg[blip_edepid[iBlip]] == -11 ) H_blip_Energy_mc_eplus->Fill(energy);
-			       else  H_blip_Energy_mc_other->Fill(energy);
+			       else  H_blip_Energy_mc_otherpdg->Fill(energy);
+
+                               
 	     }else H_blip_Energy_overlay->Fill(energy);
+
+
+
+
+           if(edep_id >= 0 ) {    if(      edep_proc[blip_edepid[iBlip]] ==   0 ) H_blip_Energy_mc_primary->Fill(energy); 
+                             else if(      edep_proc[blip_edepid[iBlip]] ==   1 ) H_blip_Energy_mc_compton->Fill(energy);
+	                     else if(      edep_proc[blip_edepid[iBlip]] ==   2 ) H_blip_Energy_mc_photoe->Fill(energy);
+			     else if(      edep_proc[blip_edepid[iBlip]] ==   3 ) H_blip_Energy_mc_pairprod->Fill(energy);
+			     else if(      edep_proc[blip_edepid[iBlip]] ==   4 ) H_blip_Energy_mc_otherproc->Fill(energy);
+	                       else  H_blip_Energy_mc_nonproc->Fill(energy);
+	   
+	   }
+
+           if(edep_id >= 0 ){	   
+           h_blip_zy_pk_0_mc->Fill( blip_z[iBlip], blip_y[iBlip] );
+	   h_blip_zx_pk_0_mc->Fill( blip_z[iBlip], blip_x[iBlip] ); 	   
+	   }
+
 
              h_blip_zy_pk_0->Fill( blip_z[iBlip], blip_y[iBlip] );
              h_blip_zx_pk_0->Fill( blip_z[iBlip], blip_x[iBlip] );

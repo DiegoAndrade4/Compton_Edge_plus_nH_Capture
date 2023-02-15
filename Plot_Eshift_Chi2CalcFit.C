@@ -13,6 +13,7 @@
 #include<stdio.h>
 #include "TAttFill.h"
 #include "TBox.h"
+#include "THStack.h"
 
 #include "TLegend.h"
 #include <iomanip>      // std::setprecision
@@ -120,8 +121,8 @@ addNeutrons ? c->Print(Form("%s/%s/wn_BkgSub_%s-EShift_%2.2fpercent_SNF_%1.2f_Lo
 
 
 
-void Plot_Components(TH1D* h1, TH1D* h2, TH1D* h3, TH1D* h4, TH1D* h5, const char* hTitle, const char* hName,  const char* MainDir, const char* Dir, bool addNeutrons, float eShift, float NormF ) {
-TCanvas *c = new TCanvas("c", "canvas", 200, 10, 1000, 800);
+void Plot_Components(TH1D* h1, TH1D* h2, TH1D* h3, TH1D* h4, TH1D* h5, const char* hTitle, const char* hName,  const char* MainDir, const char* Dir, bool addNeutrons, float SRUx1, float SRUx2,  float eShift, float NormF ) {
+TCanvas *c = new TCanvas("c1", "canvas1", 200, 10, 1000, 800);
 
 //h1 Total
 //h2 MC
@@ -141,6 +142,7 @@ h3->SetLineColor(4) ; h3->SetMarkerColor(4) ;
 h4->SetLineColor(3) ; h4->SetMarkerColor(3) ; h4->SetLineStyle(2); 
 h5->SetLineColor(6) ; h5->SetMarkerColor(6) ; h5->SetLineStyle(2);
 
+h1->GetXaxis()->SetRangeUser( SRUx1, SRUx2 );
 
 auto Legend = new TLegend(0.55,0.7,0.9,0.9);
      Legend->SetHeader(Form("%s", hTitle ) ,"C" ); // option "C" allows to center the header
@@ -162,11 +164,124 @@ addNeutrons ? c->Print(Form("%s/%s/wn_Components_%s-EShift_%2.2fpercent_SNF_%1.2
 
 }
 
+//========================================================
+void Plot_Components_Process(TH1D* h1, TH1D* h2, TH1D* h3, TH1D* h4, TH1D* h5, TH1D* h6, const char* hTitle, const char* hName,  const char* MainDir, const char* Dir, bool addNeutrons, float SRUx1, float SRUx2,  float eShift, float NormF ) {
+TCanvas *c = new TCanvas("c2", "canvas2", 200, 10, 1000, 800);
+
+
+//h1 MC
+//h2 primary
+//h3 compton
+//h4 photo
+//h5 pairprod
+//h6 Otherproc
+
+h1->Draw("hist same");
+h2->Draw("hist same");
+h3->Draw("hist same");
+h4->Draw("hist same");
+h5->Draw("hist same");
+h5->Draw("hist same");
+h6->Draw("hist same");
+
+h1->SetLineColor(1) ; h1->SetMarkerColor(1) ;
+h2->SetLineColor(3) ; h2->SetMarkerColor(3) ;
+h3->SetLineColor(4) ; h3->SetMarkerColor(4) ;
+h4->SetLineColor(2) ; h4->SetMarkerColor(2) ; //h4->SetLineStyle(2);
+h5->SetLineColor(6) ; h5->SetMarkerColor(6) ; //h5->SetLineStyle(2);
+h6->SetLineColor(7) ; h6->SetMarkerColor(7) ; // h6->SetLineStyle(2);
+
+h1->GetXaxis()->SetRangeUser( SRUx1, SRUx2 );
+
+auto Legend = new TLegend(0.55,0.7,0.9,0.9);
+     Legend->SetHeader(Form("%s", hTitle ) ,"C" ); // option "C" allows to center the header
+     Legend->AddEntry(h1,"MC Total blips","l");
+     Legend->AddEntry(h3,"Compton Scat","l");
+      Legend->AddEntry(h4,"Photoelectric","l");
+     Legend->AddEntry(h5,"Pair prod","l");
+     Legend->AddEntry(h2,"Primary","l");
+     Legend->AddEntry(h6,"Other","l");
+     c->Update();
+     Legend->Draw();
+
+if(eShift == 0){
+addNeutrons ? c->Print(Form("%s/%s/wn_ProcessComponents_%s-EShift_%2.2fpercent_SNF_%1.2f.png"    , MainDir, Dir, hName, eShift, NormF ))   :  c->Print(Form("%s/%s/ProcessComponents_%s-EShift_%2.2fpercent_SNF_%1.2f.png"    , MainDir, Dir, hName, eShift, NormF ));
+
+
+gPad->SetLogy();
+addNeutrons ? c->Print(Form("%s/%s/wn_ProcessComponents_%s-EShift_%2.2fpercent_SNF_%1.2f_Log.png", MainDir, Dir, hName, eShift, NormF )) : c->Print(Form("%s/%s/ProcessComponents_%s-EShift_%2.2fpercent_SNF_%1.2f_Log.png", MainDir, Dir, hName, eShift, NormF ));
+}
+
+}
+//=========================================================
+
+void Plot_Components_Process_Stk(TH1D* h1, TH1D* h2, TH1D* h3, TH1D* h4, TH1D* h5, TH1D* h6, const char* hTitle, const char* hName,  const char* MainDir, const char* Dir, bool addNeutrons, float eShift, float NormF ) {
+TCanvas *c = new TCanvas("c2s", "canvas2s", 200, 10, 1000, 800);
+
+
+//h1 MC
+//h2 primary
+//h3 compton
+//h4 photo
+//h5 pairprod
+//h6 Otherproc
+
+ THStack *hs = new THStack("hs","Processes");
+
+//h1->SetLineColor(2) ; h1->SetMarkerColor(2) ;  
+//h1->SetFillColor(2) ;
+//h2->SetLineColor(3) ; h2->SetMarkerColor(3) ; 
+ h2->SetFillColor(3) ;
+//h3->SetLineColor(4) ; h3->SetMarkerColor(4) ;  
+h3->SetFillColor(4) ;
+//h4->SetLineColor(kOrange) ; h4->SetMarkerColor(kOrange) ;
+ h4->SetFillColor(kOrange) ; //h4->SetLineStyle(2);
+//h5->SetLineColor(6) ; h5->SetMarkerColor(6) ;  
+h5->SetFillColor(6) ;//h5->SetLineStyle(2);
+//h6->SetLineColor(7) ; h6->SetMarkerColor(7) ;
+  h6->SetFillColor(7) ; // h6->SetLineStyle(2);
+
+//hs->Add(h1);
+hs->Add(h2);
+hs->Add(h3);
+hs->Add(h4);
+hs->Add(h5);
+hs->Add(h6);
+
+hs->Draw("lego1");
+
+
+auto Legend = new TLegend(0.55,0.7,0.9,0.9);
+     Legend->SetHeader(Form("%s", hTitle ) ,"C" ); // option "C" allows to center the header
+    // Legend->AddEntry(h1,"MC Total blips","l");
+     Legend->AddEntry(h3,"Compton Scat","l");
+      Legend->AddEntry(h4,"Photoelectric","l");
+     Legend->AddEntry(h5,"Pair prod","l");
+     Legend->AddEntry(h2,"Primary","l");
+     Legend->AddEntry(h6,"Other","l");
+     c->Update();
+     Legend->Draw();
+
+if(eShift == 0){
+addNeutrons ? c->Print(Form("%s/%s/wn_ProcessComponents_%s-EShift_%2.2fpercent_SNF_%1.2f_Stk.png"    , MainDir, Dir, hName, eShift, NormF ))   :  c->Print(Form("%s/%s/ProcessComponents_%s-EShift_%2.2fpercent_SNF_%1.2f_Stk.png"    , MainDir, Dir, hName, eShift, NormF ));
+
+
+gPad->SetLogy();
+addNeutrons ? c->Print(Form("%s/%s/wn_ProcessComponents_%s-EShift_%2.2fpercent_SNF_%1.2f_Stk_Log.png", MainDir, Dir, hName, eShift, NormF )) : c->Print(Form("%s/%s/ProcessComponents_%s-EShift_%2.2fpercent_SNF_%1.2f_Stk_Log.png", MainDir, Dir, hName, eShift, NormF ));
+}
+
+
+
+
+
+
+
+}
 
 //=========================================================
 
 void Plot_Histograms(TH1D* h1, TH1D* h2,  const char* hTitle, const char* hName,  const char* MainDir, const char* Dir, bool addNeutrons,  float eShift, float NormF ) {
-TCanvas *c = new TCanvas("c", "canvas", 200, 10, 1000, 800);
+TCanvas *c = new TCanvas("c3", "canvas3", 200, 10, 1000, 800);
 
 //h1 run3 data
 //h2 run6 data
@@ -208,7 +323,7 @@ addNeutrons ? c->Print(Form("%s/%s/wn_DataRelativeShift_%s-EShift_%2.2fpercent_S
 
 //=========================================================
 
-void Plot_EShift(TH1D* h1, TH1D* h2, TH1D* h3, int runNumber, const char* hTitle, const char* hName,  const char* MainDir, const char* Dir,  float eShift, float NormF, float YRU_lower, float YRU_upper , bool addNeutrons, bool doPlot, /* float Chi2, int ndf,*/bool IsMCOverlay,	float X1_Fit, float X2_Fit) {
+void Plot_EShift(TH1D* h1, TH1D* h2, TH1D* h3, TH1D* hK40, int runNumber, const char* hTitle, const char* hName,  const char* MainDir, const char* Dir,  float eShift, float NormF, float SRUx1, float SRUx2 , float SRUy1, float SRUy2 , bool addNeutrons, bool addK40Gammas, bool doPlot, /* float Chi2, int ndf,*/bool IsMCOverlay,	float X1_Fit, float X2_Fit) {
 
 	
 if(NormF != -1) {
@@ -259,6 +374,8 @@ p1->cd(0);
 
 h1->SetLineColor(1); h1->SetMarkerColor(1);
 
+h1->GetXaxis()->SetRangeUser( SRUx1, SRUx2 );
+
 h1->Draw("hist same");
 
 
@@ -269,6 +386,8 @@ hTotalMC->Sumw2();
 //cout<<"hMC Entries: "<<hTotalMC->GetEntries()<<endl;
 
 if(addNeutrons == 1) hTotalMC->Add(h3, 1.); 
+if(addK40Gammas == 1) hTotalMC->Add(hK40, 1.);
+
 
 //cout<<"Afeter addNeutrons = "<<addNeutrons<<" ;    hMC Entries: "<<hTotalMC->GetEntries()<<endl;
 
@@ -279,7 +398,7 @@ hTotalMC->SetLineColor(222); hTotalMC->SetMarkerColor(222);
 hTotalMC->Draw("hist same");
 
 
-TBox *box = new TBox(X1_Fit, 0.0 , X2_Fit, YRU_upper);
+TBox *box = new TBox(X1_Fit, 0.0 , X2_Fit, SRUy2);
 box->SetFillColor(kViolet);
 box->SetFillStyle(3003);
 box->Draw();
@@ -310,7 +429,11 @@ auto Legend = new TLegend(0.45,0.6,0.9,0.9);
 
      Legend->SetHeader(Form("%s -  #chi^{2}: %6.2f,  #chi^{2}/NDF: %5.2f ", hTitle, Chi2, Chi2/ndf ),"C");
      Legend->AddEntry(h1,"data G10- Non G10 blips","l");
-     Legend->AddEntry(hTotalMC ,  addNeutrons ? Form(" MC 1eV n, 2.6MeV #gamma. EShift: %2.2f %%, SNF: %1.2f",eShift, NormF ) :  Form(" MC 2.6MeV #gamma. EShift: %2.2f %%, SNF: %1.2f",eShift, NormF ),"l");
+     if( addK40Gammas == 0 && addNeutrons == 0) Legend->AddEntry(hTotalMC , Form(" MC 2.6MeV #gamma. EShift: %2.2f %%, SNF: %1.2f",eShift, NormF ) ) ;
+     if( addK40Gammas == 0 && addNeutrons == 1) Legend->AddEntry(hTotalMC , Form(" MC 2.6MeV #gamma, 1eV n. EShift: %2.2f %%, SNF: %1.2f",eShift, NormF) ) ;
+     if( addK40Gammas == 1 && addNeutrons == 0) Legend->AddEntry(hTotalMC , Form(" MC 2.6MeV #gamma, 1.4MeV #gamma. EShift: %2.2f %%, SNF: %1.2f",eShift, NormF) ) ;
+     if( addK40Gammas == 1 && addNeutrons == 1) Legend->AddEntry(hTotalMC , Form(" MC 2.6MeV #gamma, 1.4MeV #gamma, 1eV n. EShift: %2.2f %%, SNF: %1.2f",eShift, NormF) ) ;
+
      c->Update();
      Legend->Draw();
 
@@ -332,7 +455,8 @@ TH1D* h4 = (TH1D*) hTotalMC->Clone("h4");
 h4->Sumw2();
 h4->SetTitle(Form(" MC %2.2f %%_Eshift_%1.2f_SpecNorm / Data BkgSub", eShift, NormF )  );
 
-   h4->GetYaxis()->SetRangeUser(0.5,1.5); 
+   h4->GetYaxis()->SetRangeUser(0.5,1.5);
+  h4->GetXaxis()->SetRangeUser( SRUx1, SRUx2 ); 
    h4->GetYaxis()->SetTitle("Ratio:  MC / Data                    ");
    h4->Divide(h1);
    h4->Draw(); 
@@ -358,7 +482,12 @@ c->Update();
 
 
 //h1->GetYaxis()->SetRangeUser( YRU_lower, YRU_upper);
-if(doPlot == 1) addNeutrons ?  c->Print(Form("%s/%s/wn_Ratio-%s-EShift_%2.2fpercent_SNF_%1.2f.png", MainDir, Dir, hName, eShift, NormF )) : c->Print(Form("%s/%s/Ratio-%s-EShift_%2.2fpercent_SNF_%1.2f.png", MainDir, Dir, hName, eShift, NormF ))   ;
+
+if(doPlot == 1 ){ if( addK40Gammas == 0 && addNeutrons == 0)  c->Print(Form("%s/%s/Ratio_%s-EShift_%2.2fpercent_SNF_%1.2f.png", MainDir, Dir, hName, eShift, NormF ));
+                  if( addK40Gammas == 0 && addNeutrons == 1)  c->Print(Form("%s/%s/Ratio_Included_n_%s-EShift_%2.2fpercent_SNF_%1.2f.png", MainDir, Dir, hName, eShift, NormF ));
+                  if( addK40Gammas == 1 && addNeutrons == 0)  c->Print(Form("%s/%s/Ratio_Included_k40gam_%s-EShift_%2.2fpercent_SNF_%1.2f.png", MainDir, Dir, hName, eShift, NormF ));
+                  if( addK40Gammas == 1 && addNeutrons == 1)  c->Print(Form("%s/%s/Ratio_Included_n_k40gam_%s-EShift_%2.2fpercent_SNF_%1.2f.png", MainDir, Dir, hName, eShift, NormF ));  }
+
 c->Update();
 
 
@@ -366,7 +495,9 @@ p1->cd(0);
 
 
 //c->cd(1);
-h1->GetYaxis()->SetRangeUser( YRU_lower, YRU_upper);
+h1->GetYaxis()->SetRangeUser(  SRUy1, SRUy2);
+//h1->GetXaxis()->SetRangeUser( SRUx1, SRUx2 );
+
 p2->Modified();
 c->Update();
 
@@ -378,7 +509,13 @@ auto Legend2 = new TLegend(0.45,0.6,0.9,0.9);
 
      Legend2->SetHeader(Form("%s -  #chi^{2}: %6.2f,  #chi^{2}/NDF: %5.2f ", hTitle, Chi2, Chi2/ndf ),"C");
      Legend2->AddEntry(h1,"data G10- Non G10 blips","l");
-     Legend2->AddEntry(hTotalMC ,  addNeutrons ? Form(" MC 1eV n, 2.6MeV #gamma. EShift: %2.2f %%, SNF: %1.2f",eShift, NormF ) :  Form(" MC 2.6MeV #gamma. EShift: %2.2f %%, SNF: %1.2f",eShift, NormF ),"l");
+     if( addK40Gammas == 0 && addNeutrons == 0) Legend2->AddEntry(hTotalMC , Form(" MC 2.6MeV #gamma. EShift: %2.2f %%, SNF: %1.2f",eShift, NormF ) ) ;
+     if( addK40Gammas == 0 && addNeutrons == 1) Legend2->AddEntry(hTotalMC , Form(" MC 2.6MeV #gamma, 1eV n. EShift: %2.2f %%, SNF: %1.2f",eShift, NormF) ) ;
+     if( addK40Gammas == 1 && addNeutrons == 0) Legend2->AddEntry(hTotalMC , Form(" MC 2.6MeV #gamma, 1.4MeV #gamma. EShift: %2.2f %%, SNF: %1.2f",eShift, NormF) ) ;
+     if( addK40Gammas == 1 && addNeutrons == 1) Legend2->AddEntry(hTotalMC , Form(" MC 2.6MeV #gamma, 1.4MeV #gamma, 1eV n. EShift: %2.2f %%, SNF: %1.2f",eShift, NormF) ) ;
+
+     
+	     
      c->Update();
      Legend2->Draw();
 
@@ -388,11 +525,10 @@ box->SetFillStyle(3003);
 p1->Modified();
 c->Update();
 
-
-if(doPlot == 1)  addNeutrons ? c->Print(Form("%s/%s/wn_zoom-Ratio-%s-EShift_%2.2fpercent_SNF_%1.2f.png", MainDir, Dir, hName, eShift, NormF )) : c->Print(Form("%s/%s/zoom-Ratio-%s-EShift_%2.2fpercent_SNF_%1.2f.png", MainDir, Dir, hName, eShift, NormF ))  ;
-
-
-
+if(doPlot == 1 ){ if( addK40Gammas == 0 && addNeutrons == 0)  c->Print(Form("%s/%s/zoom-Ratio_%s-EShift_%2.2fpercent_SNF_%1.2f.png", MainDir, Dir, hName, eShift, NormF ));
+                  if( addK40Gammas == 0 && addNeutrons == 1)  c->Print(Form("%s/%s/zoom-Ratio_Included_n_%s-EShift_%2.2fpercent_SNF_%1.2f.png", MainDir, Dir, hName, eShift, NormF ));
+                  if( addK40Gammas == 1 && addNeutrons == 0)  c->Print(Form("%s/%s/zoom-Ratio_Included_k40gam_%s-EShift_%2.2fpercent_SNF_%1.2f.png", MainDir, Dir, hName, eShift, NormF ));
+                  if( addK40Gammas == 1 && addNeutrons == 1)  c->Print(Form("%s/%s/zoom-Ratio_Included_n_k40gam_%s-EShift_%2.2fpercent_SNF_%1.2f.png", MainDir, Dir, hName, eShift, NormF ));  }
 
 
 chi2_energyshift_run3.close();
@@ -423,7 +559,7 @@ chi2NDF_energyshift_run6.close();
 
 
 
-void Plot_Eshift_Chi2CalcFit(string inputRun3G10 , string inputRun3G10Exc, string inputRun6G10 , string inputRun6G10Exc , string inputMCGammasG10, string inputMCGammasG10Exc,  string inputMCNeutronsG10, string inputMCNeutronsG10Exc, const char* mainDir,  const char* dir, float EShift,  float SpectrumNormF, float SpectrumNormFRun6, bool isMCOverlay , bool AddNeutrons, bool plot, float x1_fit, float x2_fit){
+void Plot_Eshift_Chi2CalcFit(string inputRun3G10 , string inputRun3G10Exc, string inputRun6G10 , string inputRun6G10Exc , string inputMCGammasG10, string inputMCGammasG10Exc,  string inputMCNeutronsG10, string inputMCNeutronsG10Exc,  string inputMCK40G10, string inputMCK40G10Exc, const char* mainDir,  const char* dir, float EShift,  float SpectrumNormF, float SpectrumNormFRun6, bool isMCOverlay , bool AddNeutrons, bool AddK40Gammas, bool plot, float x1_fit, float x2_fit){
 
 
 //gEnv->SetValue("OpenGL.CanvasPreferGL",1);
@@ -450,7 +586,9 @@ TFile* fileMCNeutronsG10    = new TFile(inputMCNeutronsG10.c_str(),"READ");//Neu
 
 TFile* fileMCNeutronsG10Exc = new TFile(inputMCNeutronsG10Exc.c_str(),"READ"); //Neutrons
 
+TFile* fileMCK40G10    = new TFile(inputMCK40G10.c_str(),"READ");// K40 Gammas
 
+TFile* fileMCK40G10Exc = new TFile(inputMCK40G10Exc.c_str(),"READ"); // K40 Gammass
 
 
 
@@ -468,17 +606,21 @@ TH1D* data_blip_run6_G10Exc = (TH1D*) fileRun6G10Exc->Get("H_blip_Energy");
       data_blip_run6_G10Exc->Sumw2();
 
 
+//=================================================================================================================================================
 
+//******************
+//* 2.6 MeV Gammas *
+//******************
 
-//Gammas
 //G10
 TH1D* gammas_blip_EShifted_Xperc_G10_overlay = (TH1D*) fileMCGammasG10->Get( (isMCOverlay == 1) ? "H_blip_Energy_overlay" :" H_blip_Energy_overlay" );
 if(isMCOverlay == 1)  gammas_blip_EShifted_Xperc_G10_overlay->Sumw2();
 //gammas_blip_EnergyShift_Xperc_overlay->Sumw2();
-
 TH1D* gammas_blip_EShifted_Xperc_G10_mc = (TH1D*) fileMCGammasG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc" :" H_blip_Energy" );
 if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10_mc->Sumw2()  ;
-//====
+//gammas_blip_EnergyShift_Xperc_mc->Sumw2();
+
+//MC components
 
 TH1D* gammas_blip_EShifted_Xperc_G10_mc_gammas = (TH1D*) fileMCGammasG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_gammas" :" H_blip_Energy" );
 if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10_mc_gammas->Sumw2()  ;
@@ -488,28 +630,35 @@ TH1D* gammas_blip_EShifted_Xperc_G10_mc_eminus = (TH1D*) fileMCGammasG10 ->Get( 
 if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10_mc_eminus->Sumw2()  ;
 TH1D* gammas_blip_EShifted_Xperc_G10_mc_eplus = (TH1D*) fileMCGammasG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_eplus" :" H_blip_Energy" );
 if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10_mc_eplus->Sumw2()  ;
-TH1D* gammas_blip_EShifted_Xperc_G10_mc_other = (TH1D*) fileMCGammasG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_other" :" H_blip_Energy" );
+TH1D* gammas_blip_EShifted_Xperc_G10_mc_other = (TH1D*) fileMCGammasG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_otherpdg" :" H_blip_Energy" );
 if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10_mc_other->Sumw2()  ;
 
-//====
-//gammas_blip_EnergyShift_Xperc_mc->Sumw2();
 
+//MC process type
+TH1D* gammas_blip_EShifted_Xperc_G10_mc_primary = (TH1D*) fileMCGammasG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_primary" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10_mc_primary ->Sumw2()  ;
+TH1D* gammas_blip_EShifted_Xperc_G10_mc_compton = (TH1D*) fileMCGammasG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_compton" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10_mc_compton ->Sumw2()  ;
+TH1D* gammas_blip_EShifted_Xperc_G10_mc_photoe = (TH1D*) fileMCGammasG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_photoe" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10_mc_photoe ->Sumw2()  ;
+TH1D* gammas_blip_EShifted_Xperc_G10_mc_pairprod = (TH1D*) fileMCGammasG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_pairprod" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10_mc_pairprod ->Sumw2()  ;
+TH1D* gammas_blip_EShifted_Xperc_G10_mc_otherproc = (TH1D*) fileMCGammasG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_otherproc" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10_mc_otherproc ->Sumw2()  ;
+
+// Shifted H
 TH1D* gammas_blip_EShifted_Xperc_G10 = (TH1D*) fileMCGammasG10->Get( (isMCOverlay == 1) ?  "H_blip_Energy" : "H_blip_Energy" );
 gammas_blip_EShifted_Xperc_G10->Sumw2();
 
-
-
-
-
+//=========================================
 //G10Exc
 TH1D* gammas_blip_EShifted_Xperc_G10Exc_overlay = (TH1D*) fileMCGammasG10Exc->Get( (isMCOverlay == 1) ? "H_blip_Energy_overlay" :" H_blip_Energy_overlay" );
 if(isMCOverlay == 1)  gammas_blip_EShifted_Xperc_G10Exc_overlay->Sumw2();
-
 TH1D* gammas_blip_EShifted_Xperc_G10Exc_mc = (TH1D*) fileMCGammasG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc" :" H_blip_Energy" );
 if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10Exc_mc->Sumw2()  ;
 
 
-
+//G10Exc - MC components
 TH1D* gammas_blip_EShifted_Xperc_G10Exc_mc_gammas = (TH1D*) fileMCGammasG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_gammas" :" H_blip_Energy" );
 if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10Exc_mc_gammas->Sumw2()  ;
 TH1D* gammas_blip_EShifted_Xperc_G10Exc_mc_protons = (TH1D*) fileMCGammasG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_protons" :" H_blip_Energy" );
@@ -518,59 +667,78 @@ TH1D* gammas_blip_EShifted_Xperc_G10Exc_mc_eminus = (TH1D*) fileMCGammasG10Exc -
 if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10Exc_mc_eminus->Sumw2()  ;
 TH1D* gammas_blip_EShifted_Xperc_G10Exc_mc_eplus = (TH1D*) fileMCGammasG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_eplus" :" H_blip_Energy" );
 if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10Exc_mc_eplus->Sumw2()  ;
-TH1D* gammas_blip_EShifted_Xperc_G10Exc_mc_other = (TH1D*) fileMCGammasG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_other" :" H_blip_Energy" );
+TH1D* gammas_blip_EShifted_Xperc_G10Exc_mc_other = (TH1D*) fileMCGammasG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_otherpdg" :" H_blip_Energy" );
 if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10Exc_mc_other->Sumw2()  ;
 
 
+//G10Exc - MC process type
+TH1D* gammas_blip_EShifted_Xperc_G10Exc_mc_primary = (TH1D*) fileMCGammasG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_primary" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10Exc_mc_primary ->Sumw2()  ;  
+TH1D* gammas_blip_EShifted_Xperc_G10Exc_mc_compton = (TH1D*) fileMCGammasG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_compton" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10Exc_mc_compton ->Sumw2()  ;  
+TH1D* gammas_blip_EShifted_Xperc_G10Exc_mc_photoe = (TH1D*) fileMCGammasG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_photoe" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10Exc_mc_photoe ->Sumw2()  ;  
+TH1D* gammas_blip_EShifted_Xperc_G10Exc_mc_pairprod = (TH1D*) fileMCGammasG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_pairprod" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10Exc_mc_pairprod ->Sumw2()  ;  
+TH1D* gammas_blip_EShifted_Xperc_G10Exc_mc_otherproc = (TH1D*) fileMCGammasG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_otherproc" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammas_blip_EShifted_Xperc_G10Exc_mc_otherproc ->Sumw2()  ;  
 
-
-
+//Shifted H
 TH1D* gammas_blip_EShifted_Xperc_G10Exc = (TH1D*) fileMCGammasG10Exc->Get( (isMCOverlay == 1) ?  "H_blip_Energy" : "H_blip_Energy" );
 gammas_blip_EShifted_Xperc_G10Exc->Sumw2();
 
 
+//=========================================================================================================================================================
 
-//Neutrons
+//****************
+//* 1eV Neutrons *
+//****************
+
 //G10
 TH1D* neutrons_blip_EShifted_Xperc_G10_overlay = (TH1D*) fileMCNeutronsG10->Get( (isMCOverlay == 1) ? "H_blip_Energy_overlay" :" H_blip_Energy_overlay" );
 if(isMCOverlay == 1)  neutrons_blip_EShifted_Xperc_G10_overlay->Sumw2();
-
 TH1D* neutrons_blip_EShifted_Xperc_G10_mc = (TH1D*) fileMCNeutronsG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc" :" H_blip_Energy" );
 if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10_mc->Sumw2()  ;
 
-//====
-
-TH1D* neutrons_blip_EShifted_Xperc_G10_mc_neutrons = (TH1D*) fileMCNeutronsG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_gammas" :" H_blip_Energy" );
-if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10_mc_neutrons->Sumw2()  ;
+//MC components
+TH1D* neutrons_blip_EShifted_Xperc_G10_mc_gammas = (TH1D*) fileMCNeutronsG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_gammas" :" H_blip_Energy" );
+if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10_mc_gammas->Sumw2()  ;
 TH1D* neutrons_blip_EShifted_Xperc_G10_mc_protons = (TH1D*) fileMCNeutronsG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_protons" :" H_blip_Energy" );
 if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10_mc_protons->Sumw2()  ;
 TH1D* neutrons_blip_EShifted_Xperc_G10_mc_eminus = (TH1D*) fileMCNeutronsG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_eminus" :" H_blip_Energy" );
 if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10_mc_eminus->Sumw2()  ;
 TH1D* neutrons_blip_EShifted_Xperc_G10_mc_eplus = (TH1D*) fileMCNeutronsG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_eplus" :" H_blip_Energy" );
 if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10_mc_eplus->Sumw2()  ;
-TH1D* neutrons_blip_EShifted_Xperc_G10_mc_other = (TH1D*) fileMCNeutronsG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_other" :" H_blip_Energy" );
+TH1D* neutrons_blip_EShifted_Xperc_G10_mc_other = (TH1D*) fileMCNeutronsG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_otherpdg" :" H_blip_Energy" );
 if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10_mc_other->Sumw2()  ;
 
-//====
+//process type
+TH1D* neutrons_blip_EShifted_Xperc_G10_mc_primary = (TH1D*) fileMCNeutronsG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_primary" :" H_blip_Energy" );
+if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10_mc_primary ->Sumw2()  ;
+TH1D* neutrons_blip_EShifted_Xperc_G10_mc_compton = (TH1D*) fileMCNeutronsG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_compton" :" H_blip_Energy" );
+if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10_mc_compton ->Sumw2()  ;
+TH1D* neutrons_blip_EShifted_Xperc_G10_mc_photoe = (TH1D*) fileMCNeutronsG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_photoe" :" H_blip_Energy" );
+if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10_mc_photoe ->Sumw2()  ;
+TH1D* neutrons_blip_EShifted_Xperc_G10_mc_pairprod = (TH1D*) fileMCNeutronsG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_pairprod" :" H_blip_Energy" );
+if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10_mc_pairprod ->Sumw2()  ;
+TH1D* neutrons_blip_EShifted_Xperc_G10_mc_otherproc = (TH1D*) fileMCNeutronsG10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_otherproc" :" H_blip_Energy" );
+if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10_mc_otherproc ->Sumw2()  ;
 
+
+// Shifted H
 TH1D* neutrons_blip_EShifted_Xperc_G10 = (TH1D*) fileMCNeutronsG10->Get( (isMCOverlay == 1) ?  "H_blip_Energy" : "H_blip_Energy" );
 neutrons_blip_EShifted_Xperc_G10->Sumw2();
 
-
-
-
-
+//========================================
 
 
 //G10Exc
 TH1D* neutrons_blip_EShifted_Xperc_G10Exc_overlay = (TH1D*) fileMCNeutronsG10Exc->Get( (isMCOverlay == 1) ? "H_blip_Energy_overlay" :" H_blip_Energy_overlay" );
 if(isMCOverlay == 1)  neutrons_blip_EShifted_Xperc_G10Exc_overlay->Sumw2();
-
 TH1D* neutrons_blip_EShifted_Xperc_G10Exc_mc = (TH1D*) fileMCNeutronsG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc" :" H_blip_Energy" );
 if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10Exc_mc->Sumw2()  ;
 
-//=====
-
+//G10Exc - MC components
 TH1D* neutrons_blip_EShifted_Xperc_G10Exc_mc_gammas = (TH1D*) fileMCNeutronsG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_gammas" :" H_blip_Energy" );
 if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10Exc_mc_gammas->Sumw2()  ;
 TH1D* neutrons_blip_EShifted_Xperc_G10Exc_mc_protons = (TH1D*) fileMCNeutronsG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_protons" :" H_blip_Energy" );
@@ -579,18 +747,112 @@ TH1D* neutrons_blip_EShifted_Xperc_G10Exc_mc_eminus = (TH1D*) fileMCNeutronsG10E
 if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10Exc_mc_eminus->Sumw2()  ;
 TH1D* neutrons_blip_EShifted_Xperc_G10Exc_mc_eplus = (TH1D*) fileMCNeutronsG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_eplus" :" H_blip_Energy" );
 if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10Exc_mc_eplus->Sumw2()  ;
-TH1D* neutrons_blip_EShifted_Xperc_G10Exc_mc_other = (TH1D*) fileMCNeutronsG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_other" :" H_blip_Energy" );
+TH1D* neutrons_blip_EShifted_Xperc_G10Exc_mc_other = (TH1D*) fileMCNeutronsG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_otherpdg" :" H_blip_Energy" );
 if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10Exc_mc_other->Sumw2()  ;
 
-//====
+//G10Exc - MC process type
+TH1D* neutrons_blip_EShifted_Xperc_G10Exc_mc_primary = (TH1D*) fileMCNeutronsG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_primary" :" H_blip_Energy" );
+if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10Exc_mc_primary ->Sumw2()  ; 
+TH1D* neutrons_blip_EShifted_Xperc_G10Exc_mc_compton = (TH1D*) fileMCNeutronsG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_compton" :" H_blip_Energy" );
+if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10Exc_mc_compton ->Sumw2()  ; 
+TH1D* neutrons_blip_EShifted_Xperc_G10Exc_mc_photoe = (TH1D*) fileMCNeutronsG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_photoe" :" H_blip_Energy" );
+if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10Exc_mc_photoe ->Sumw2()  ; 
+TH1D* neutrons_blip_EShifted_Xperc_G10Exc_mc_pairprod = (TH1D*) fileMCNeutronsG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_pairprod" :" H_blip_Energy" );
+if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10Exc_mc_pairprod ->Sumw2()  ; 
+TH1D* neutrons_blip_EShifted_Xperc_G10Exc_mc_otherproc = (TH1D*) fileMCNeutronsG10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_otherproc" :" H_blip_Energy" );
+if(isMCOverlay == 1) neutrons_blip_EShifted_Xperc_G10Exc_mc_otherproc ->Sumw2()  ; 
 
+// Shifted H
 TH1D* neutrons_blip_EShifted_Xperc_G10Exc = (TH1D*) fileMCNeutronsG10Exc->Get( (isMCOverlay == 1) ?  "H_blip_Energy" : "H_blip_Energy" );
 neutrons_blip_EShifted_Xperc_G10Exc->Sumw2();
 
 
 
+//====================================================================================================================================================
+
+//**************
+//* K40 gammas *
+//**************
+
+//G10
+TH1D* gammasK40_blip_EShifted_Xperc_G10_overlay = (TH1D*) fileMCK40G10->Get( (isMCOverlay == 1) ? "H_blip_Energy_overlay" :" H_blip_Energy_overlay" );
+if(isMCOverlay == 1)  gammasK40_blip_EShifted_Xperc_G10_overlay->Sumw2();
+TH1D* gammasK40_blip_EShifted_Xperc_G10_mc = (TH1D*) fileMCK40G10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10_mc->Sumw2()  ;
+
+//MC components
+TH1D* gammasK40_blip_EShifted_Xperc_G10_mc_gammas = (TH1D*) fileMCK40G10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_gammas" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10_mc_gammas->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10_mc_protons = (TH1D*) fileMCK40G10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_protons" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10_mc_protons->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10_mc_eminus = (TH1D*) fileMCK40G10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_eminus" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10_mc_eminus->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10_mc_eplus = (TH1D*) fileMCK40G10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_eplus" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10_mc_eplus->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10_mc_other = (TH1D*) fileMCK40G10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_otherpdg" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10_mc_other->Sumw2()  ;
+
+//MC process type
+TH1D* gammasK40_blip_EShifted_Xperc_G10_mc_primary = (TH1D*) fileMCK40G10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_primary" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10_mc_primary ->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10_mc_compton = (TH1D*) fileMCK40G10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_compton" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10_mc_compton ->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10_mc_photoe = (TH1D*) fileMCK40G10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_photoe" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10_mc_photoe ->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10_mc_pairprod = (TH1D*) fileMCK40G10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_pairprod" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10_mc_pairprod ->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10_mc_otherproc = (TH1D*) fileMCK40G10 ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_otherproc" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10_mc_otherproc ->Sumw2()  ;
+
+//Shifted H
+TH1D* gammasK40_blip_EShifted_Xperc_G10 = (TH1D*) fileMCK40G10->Get( (isMCOverlay == 1) ?  "H_blip_Energy" : "H_blip_Energy" );
+gammasK40_blip_EShifted_Xperc_G10->Sumw2();
+
+//========================================
+
+//G10Exc
+TH1D* gammasK40_blip_EShifted_Xperc_G10Exc_overlay = (TH1D*) fileMCK40G10Exc->Get( (isMCOverlay == 1) ? "H_blip_Energy_overlay" :" H_blip_Energy_overlay" );
+if(isMCOverlay == 1)  gammasK40_blip_EShifted_Xperc_G10Exc_overlay->Sumw2();
+TH1D* gammasK40_blip_EShifted_Xperc_G10Exc_mc = (TH1D*) fileMCK40G10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10Exc_mc->Sumw2()  ;
 
 
+//G10Exc - MC components
+
+TH1D* gammasK40_blip_EShifted_Xperc_G10Exc_mc_gammas = (TH1D*) fileMCK40G10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_gammas" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10Exc_mc_gammas->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10Exc_mc_protons = (TH1D*) fileMCK40G10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_protons" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10Exc_mc_protons->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10Exc_mc_eminus = (TH1D*) fileMCK40G10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_eminus" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10Exc_mc_eminus->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10Exc_mc_eplus = (TH1D*) fileMCK40G10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_eplus" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10Exc_mc_eplus->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10Exc_mc_other = (TH1D*) fileMCK40G10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_otherpdg" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10Exc_mc_other->Sumw2()  ;
+
+
+
+//G10ExcExc - MC process typ
+TH1D* gammasK40_blip_EShifted_Xperc_G10Exc_mc_primary = (TH1D*) fileMCK40G10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_primary" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10Exc_mc_primary ->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10Exc_mc_compton = (TH1D*) fileMCK40G10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_compton" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10Exc_mc_compton ->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10Exc_mc_photoe = (TH1D*) fileMCK40G10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_photoe" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10Exc_mc_photoe ->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10Exc_mc_pairprod = (TH1D*) fileMCK40G10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_pairprod" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10Exc_mc_pairprod ->Sumw2()  ;
+TH1D* gammasK40_blip_EShifted_Xperc_G10Exc_mc_otherproc = (TH1D*) fileMCK40G10Exc ->Get( (isMCOverlay == 1) ? "H_blip_Energy_mc_otherproc" :" H_blip_Energy" );
+if(isMCOverlay == 1) gammasK40_blip_EShifted_Xperc_G10Exc_mc_otherproc ->Sumw2()  ;
+
+
+
+
+
+
+//G10Exc - Shifted H
+TH1D* gammasK40_blip_EShifted_Xperc_G10Exc = (TH1D*) fileMCK40G10Exc->Get( (isMCOverlay == 1) ?  "H_blip_Energy" : "H_blip_Energy" );
+gammasK40_blip_EShifted_Xperc_G10Exc->Sumw2();
+//===========================================================================================================================================================
 
 
 
@@ -685,7 +947,11 @@ hDiffMCNeutrons->Sumw2();
 hDiffMCNeutrons->Add(neutrons_blip_EShifted_Xperc_G10Exc_mc, -1.);
 hDiffMCNeutrons->SetLineColor(15); hDiffMCNeutrons->SetMarkerColor(15); //hDiffMC->SetLineStyle(2);
 
-
+// Subtraction MC K40gammas ONLY mc component
+TH1D* hDiffMCK40Gammas = (TH1D*) gammasK40_blip_EShifted_Xperc_G10_mc->Clone("hDiffMCK40Gammas");
+hDiffMCK40Gammas->Sumw2();
+hDiffMCK40Gammas->Add(gammasK40_blip_EShifted_Xperc_G10Exc_mc, -1.);
+hDiffMCK40Gammas->SetLineColor(14); hDiffMCK40Gammas->SetMarkerColor(14); //hDiffMCK40Gammas->SetLineStyle(2);
 
 
 
@@ -736,7 +1002,7 @@ Plot_Bkg(gammas_blip_EShifted_Xperc_G10_mc, gammas_blip_EShifted_Xperc_G10Exc_mc
 
 Plot_Bkg(neutrons_blip_EShifted_Xperc_G10_mc, neutrons_blip_EShifted_Xperc_G10Exc_mc, hDiffMCNeutrons, "1eV-Neutron Blips", "1eV-Neutrons", mainDir, dir, AddNeutrons,  EShift, SpectrumNormF, plot );
 
-
+Plot_Bkg(gammasK40_blip_EShifted_Xperc_G10_mc, gammasK40_blip_EShifted_Xperc_G10Exc_mc, hDiffMCK40Gammas, "1.4MeV-Gamma Blips", "1.4MeV-Gammas", mainDir, dir, AddNeutrons, EShift, SpectrumNormF, plot );
 
 
 
@@ -747,7 +1013,7 @@ Plot_Bkg(neutrons_blip_EShifted_Xperc_G10_mc, neutrons_blip_EShifted_Xperc_G10Ex
 
 double CHI2; int NDF; 
 
-Plot_EShift(hDiffRun3, hDiffMCGammas, hDiffMCNeutrons, 3 ,"Run 3 Data ", "run3data",  mainDir, dir,  EShift, SpectrumNormF, 0 , 7000, AddNeutrons, plot, isMCOverlay , x1_fit, x2_fit );
+Plot_EShift(hDiffRun3, hDiffMCGammas, hDiffMCNeutrons, hDiffMCK40Gammas, 3 ,"Run 3 Data ", "run3data",  mainDir, dir,  EShift, SpectrumNormF, /*srux1*/0,/*srux2*/ 5, /*sruy1*/ 0 ,/*sruy2*/ 7000, AddNeutrons, AddK40Gammas, plot, isMCOverlay , x1_fit, x2_fit );
 /*
 chi2_energyshift_run3<<EShift<<"\t"<<SpectrumNormF<<"\t" <<CHI2<<"\t"<<endl;
 chi2NDF_energyshift_run3<<EShift<<"\t"<<SpectrumNormF<<"\t"<<CHI2/NDF<<"\t"<<endl;
@@ -757,7 +1023,7 @@ chi2NDF_energyshift_run3<<EShift<<"\t"<<SpectrumNormF<<"\t"<<CHI2/NDF<<"\t"<<end
 
 
 
-Plot_EShift(hDiffRun6, hDiffMCGammas, hDiffMCNeutrons, 6 ,"Run 6 Data ", "run6data",  mainDir, dir,  EShift, SpectrumNormFRun6, 0 , 800, AddNeutrons, plot, isMCOverlay , x1_fit, x2_fit );
+Plot_EShift(hDiffRun6, hDiffMCGammas, hDiffMCNeutrons, hDiffMCK40Gammas, 6 ,"Run 6 Data ", "run6data",  mainDir, dir,  EShift, SpectrumNormFRun6,/*srux1*/0,/*srux2*/ 5,/*sruy1*/ 0 ,/*sruy2*/  800, AddNeutrons, AddK40Gammas, plot, isMCOverlay , x1_fit, x2_fit );
 /*
 chi2_energyshift_run6<<EShift<<"\t"<<SpectrumNormFRun6<<"\t" <<CHI2<<"\t"<<endl;
 chi2NDF_energyshift_run6<<EShift<<"\t"<<SpectrumNormFRun6<<"\t"<<CHI2/NDF<<"\t"<<endl;
@@ -779,9 +1045,28 @@ Plot_Histograms(hDiffRun3, hDiffRun6, "Relative Shift", "relshiftrun3-6", mainDi
 
 if(isMCOverlay == 1 && plot == 1){
 
-Plot_Components(gammas_blip_EShifted_Xperc_G10, gammas_blip_EShifted_Xperc_G10_mc, gammas_blip_EShifted_Xperc_G10_overlay, gammas_blip_EShifted_Xperc_G10_mc_eminus, gammas_blip_EShifted_Xperc_G10_mc_eplus, "2.6 MeV Gammas ", "componentsGammas", mainDir, dir, AddNeutrons,  EShift, SpectrumNormF );
+Plot_Components(gammas_blip_EShifted_Xperc_G10, gammas_blip_EShifted_Xperc_G10_mc, gammas_blip_EShifted_Xperc_G10_overlay, gammas_blip_EShifted_Xperc_G10_mc_eminus, gammas_blip_EShifted_Xperc_G10_mc_eplus, "2.6 MeV Gammas ", "componentsGammas", mainDir, dir, AddNeutrons, 0, 5, EShift, SpectrumNormF );
 
-Plot_Components(neutrons_blip_EShifted_Xperc_G10, neutrons_blip_EShifted_Xperc_G10_mc, neutrons_blip_EShifted_Xperc_G10_overlay, neutrons_blip_EShifted_Xperc_G10_mc_eminus, neutrons_blip_EShifted_Xperc_G10_mc_eplus, " 1.0 eV Neutrons", "componentsNeutrons", mainDir, dir, AddNeutrons,  EShift, SpectrumNormF );
+Plot_Components(neutrons_blip_EShifted_Xperc_G10, neutrons_blip_EShifted_Xperc_G10_mc, neutrons_blip_EShifted_Xperc_G10_overlay, neutrons_blip_EShifted_Xperc_G10_mc_eminus, neutrons_blip_EShifted_Xperc_G10_mc_eplus, " 1.0 eV Neutrons", "componentsNeutrons", mainDir, dir, AddNeutrons, 0, 5,  EShift, SpectrumNormF );
+
+Plot_Components(gammasK40_blip_EShifted_Xperc_G10, gammasK40_blip_EShifted_Xperc_G10_mc, gammasK40_blip_EShifted_Xperc_G10_overlay, gammasK40_blip_EShifted_Xperc_G10_mc_eminus, gammasK40_blip_EShifted_Xperc_G10_mc_eplus, "1.4 MeV Gammas ", "componentsK40Gammas", mainDir, dir, AddNeutrons, 0, 5, EShift, SpectrumNormF );
+
+
+
+Plot_Components_Process( gammas_blip_EShifted_Xperc_G10_mc,  gammas_blip_EShifted_Xperc_G10_mc_primary, gammas_blip_EShifted_Xperc_G10_mc_compton, gammas_blip_EShifted_Xperc_G10_mc_photoe ,gammas_blip_EShifted_Xperc_G10_mc_pairprod, gammas_blip_EShifted_Xperc_G10_mc_otherproc," 2.6 MeV Gammas", "processcomponents2pt6Gammas", mainDir, dir, AddNeutrons, 0, 5,  EShift, SpectrumNormF );
+
+Plot_Components_Process( neutrons_blip_EShifted_Xperc_G10_mc,  neutrons_blip_EShifted_Xperc_G10_mc_primary, neutrons_blip_EShifted_Xperc_G10_mc_compton, neutrons_blip_EShifted_Xperc_G10_mc_photoe ,neutrons_blip_EShifted_Xperc_G10_mc_pairprod, neutrons_blip_EShifted_Xperc_G10_mc_otherproc," 1.0 eV Neutrons", "processcomponentsNeutrons", mainDir, dir, AddNeutrons, 0, 5,  EShift, SpectrumNormF );
+
+Plot_Components_Process( gammasK40_blip_EShifted_Xperc_G10_mc,  gammasK40_blip_EShifted_Xperc_G10_mc_primary, gammasK40_blip_EShifted_Xperc_G10_mc_compton, gammasK40_blip_EShifted_Xperc_G10_mc_photoe ,gammasK40_blip_EShifted_Xperc_G10_mc_pairprod, gammasK40_blip_EShifted_Xperc_G10_mc_otherproc," 1.4 MeV Gammas", "processcomponents1pt4Gammas", mainDir, dir, AddNeutrons, 0, 5,  EShift, SpectrumNormF );
+
+
+
+
+//Plot_Components_Process_Stk( neutrons_blip_EShifted_Xperc_G10_mc,  neutrons_blip_EShifted_Xperc_G10_mc_primary, neutrons_blip_EShifted_Xperc_G10_mc_compton, neutrons_blip_EShifted_Xperc_G10_mc_photoe ,neutrons_blip_EShifted_Xperc_G10_mc_pairprod, neutrons_blip_EShifted_Xperc_G10_mc_otherproc," 1.0 eV Neutrons", "processcomponentsNeutrons", mainDir, dir, AddNeutrons,  EShift, SpectrumNormF );
+
+
+
+
 
 }
 
